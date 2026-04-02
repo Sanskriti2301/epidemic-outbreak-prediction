@@ -23,11 +23,27 @@ FEATURED_DATA_PATH = DATA_DIR / "processed" / "featured_data.csv"
 JHU_CONFIRMED_PATH = DATA_DIR / "time_series_covid19_confirmed_global.csv"
 MODEL_PATH = REPO_ROOT / "models" / "model.pkl"
 
-# Brand palette (health-tech / clarity)
+# Design system — professional health / analytics
 C_PRIMARY = "#0d9488"
+C_PRIMARY_LIGHT = "#14b8a6"
 C_DEEP = "#0f172a"
-C_ACCENT = "#f97316"
-SEQ = px.colors.sequential.Teal
+C_SLATE = "#334155"
+C_BODY = "#1e293b"
+C_MUTED = "#475569"
+C_ACCENT = "#ea580c"
+C_SURFACE = "#ffffff"
+C_PAGE_TOP = "#ecfdf5"
+C_PAGE_MID = "#f0fdfa"
+C_PAGE_BOTTOM = "#f8fafc"
+C_BORDER = "#e2e8f0"
+# Custom Plotly sequential (teal depth — readable on white)
+CSCALE = [
+    [0.0, "#ccfbf1"],
+    [0.25, "#99f6e4"],
+    [0.5, "#2dd4bf"],
+    [0.75, "#0d9488"],
+    [1.0, "#115e59"],
+]
 
 
 def _dedupe_country_date(df: pd.DataFrame) -> pd.DataFrame:
@@ -40,48 +56,222 @@ def _dedupe_country_date(df: pd.DataFrame) -> pd.DataFrame:
 def inject_global_css() -> None:
     st.markdown(
         f"""
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
         <style>
-        .block-container {{ padding-top: 1.25rem !important; max-width: 1280px; }}
-        [data-testid="stSidebar"] {{ background: linear-gradient(180deg, #0f172a 0%, #134e4a 100%); }}
-        [data-testid="stSidebar"] * {{ color: #e2e8f0 !important; }}
-        [data-testid="stSidebar"] .stMarkdown strong {{ color: #5eead4 !important; }}
+        html, body, [class*="css"] {{
+            font-family: 'DM Sans', 'Segoe UI', system-ui, -apple-system, sans-serif !important;
+        }}
+        .stApp {{
+            background: linear-gradient(165deg, {C_PAGE_TOP} 0%, {C_PAGE_MID} 22%, {C_PAGE_BOTTOM} 55%, #f1f5f9 100%) !important;
+        }}
+        .main .block-container {{
+            padding-top: 1.5rem !important;
+            padding-bottom: 3rem !important;
+            max-width: 1200px;
+        }}
+        /* Headings */
+        .main h1, .main h2, .main h3 {{
+            color: {C_DEEP} !important;
+            font-weight: 600 !important;
+            letter-spacing: -0.02em !important;
+        }}
+        .main [data-testid="stHeader"] {{
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid {C_BORDER};
+        }}
+        /* Sidebar */
+        [data-testid="stSidebar"] {{
+            background: linear-gradient(175deg, #0f172a 0%, #1e3a3a 48%, #134e4a 100%) !important;
+            border-right: 1px solid rgba(255,255,255,0.08) !important;
+        }}
+        [data-testid="stSidebar"] .stMarkdown {{
+            color: #e2e8f0 !important;
+        }}
+        [data-testid="stSidebar"] label, [data-testid="stSidebar"] p, [data-testid="stSidebar"] span {{
+            color: #cbd5e1 !important;
+        }}
+        [data-testid="stSidebar"] h3 {{
+            color: #f8fafc !important;
+            font-size: 1.15rem !important;
+            font-weight: 700 !important;
+            margin-bottom: 0.25rem !important;
+        }}
+        [data-testid="stSidebar"] [data-baseweb="radio"] label {{
+            color: #f1f5f9 !important;
+        }}
+        [data-testid="stSidebar"] .stRadio > label {{
+            font-size: 0.72rem !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.12em !important;
+            color: #94a3b8 !important;
+            font-weight: 600 !important;
+        }}
+        /* Tabs — pill style */
+        .stTabs [data-baseweb="tab-list"] {{
+            gap: 6px;
+            background: rgba(255,255,255,0.65);
+            padding: 6px;
+            border-radius: 12px;
+            border: 1px solid {C_BORDER};
+            box-shadow: 0 1px 3px rgba(15,23,42,0.06);
+        }}
+        .stTabs [data-baseweb="tab"] {{
+            border-radius: 10px;
+            padding: 0.45rem 1.1rem;
+            font-weight: 600;
+            color: {C_BODY} !important;
+            opacity: 1 !important;
+        }}
+        .stTabs [aria-selected="true"] {{
+            background: linear-gradient(135deg, {C_PRIMARY} 0%, {C_PRIMARY_LIGHT} 100%) !important;
+            color: #ffffff !important;
+        }}
+        /* Dividers */
+        hr, [data-testid="stHorizontalRule"] {{
+            border: none;
+            border-top: 1px solid {C_BORDER};
+            margin: 1.25rem 0;
+        }}
+        /* Select & inputs */
+        .stSelectbox label, .stSlider label, .stNumberInput label {{
+            font-weight: 500 !important;
+            color: {C_SLATE} !important;
+            font-size: 0.88rem !important;
+        }}
+        div[data-baseweb="select"] > div {{
+            border-radius: 10px !important;
+            border-color: #cbd5e1 !important;
+            background: {C_SURFACE} !important;
+        }}
+        .main div[data-baseweb="select"] span,
+        .main div[data-baseweb="select"] div[role="button"] {{
+            color: {C_BODY} !important;
+        }}
+        .main div[data-baseweb="input"] input {{
+            color: {C_BODY} !important;
+            -webkit-text-fill-color: {C_BODY} !important;
+        }}
+        .stSlider [data-baseweb="slider"] {{
+            padding-top: 0.5rem;
+        }}
+        /* Alerts */
+        div[data-baseweb="notification"], .stAlert {{
+            border-radius: 10px !important;
+            border-left-width: 4px !important;
+        }}
+        /* Hero */
         .hero-box {{
-            background: linear-gradient(125deg, {C_DEEP} 0%, #134e4a 45%, {C_PRIMARY} 100%);
-            padding: 1.6rem 1.75rem;
-            border-radius: 14px;
-            margin-bottom: 1.25rem;
-            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.25);
+            background: linear-gradient(125deg, {C_DEEP} 0%, #1e3a5f 38%, #134e4a 72%, {C_PRIMARY} 110%);
+            padding: 1.85rem 2rem;
+            border-radius: 16px;
+            margin-bottom: 1.35rem;
+            box-shadow: 0 16px 48px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(255,255,255,0.06) inset;
         }}
         .hero-box h1 {{
             color: #f8fafc !important;
-            font-size: 1.75rem !important;
+            font-size: 1.85rem !important;
             font-weight: 700 !important;
             margin: 0 !important;
-            letter-spacing: -0.02em;
+            letter-spacing: -0.03em;
+            line-height: 1.2 !important;
         }}
         .hero-box p {{
-            color: rgba(248, 250, 252, 0.88) !important;
-            margin: 0.6rem 0 0 0 !important;
-            font-size: 1.02rem;
-            line-height: 1.45;
+            color: rgba(248, 250, 252, 0.9) !important;
+            margin: 0.65rem 0 0 0 !important;
+            font-size: 1.05rem;
+            line-height: 1.5;
+            font-weight: 400;
         }}
         .badge {{
             display: inline-block;
-            padding: 0.2rem 0.65rem;
+            padding: 0.35rem 0.75rem;
             border-radius: 999px;
-            font-size: 0.78rem;
+            font-size: 0.72rem;
             font-weight: 600;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.06em;
             text-transform: uppercase;
-            margin-top: 0.75rem;
+            margin-top: 0.85rem;
         }}
-        .badge-ok {{ background: rgba(16, 185, 129, 0.25); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.4); }}
-        .badge-warn {{ background: rgba(251, 191, 36, 0.15); color: #fcd34d; border: 1px solid rgba(251,191,36,0.35); }}
+        .badge-ok {{
+            background: rgba(16, 185, 129, 0.22);
+            color: #d1fae5 !important;
+            border: 1px solid rgba(16,185,129,0.45);
+        }}
+        .badge-warn {{
+            background: rgba(251, 191, 36, 0.12);
+            color: #fef3c7 !important;
+            border: 1px solid rgba(251,191,36,0.35);
+        }}
+        /* Metrics */
         div[data-testid="stMetric"] {{
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
+            background: {C_SURFACE};
+            border: 1px solid {C_BORDER};
+            border-radius: 12px;
+            padding: 1rem 1.15rem;
+            box-shadow: 0 2px 8px rgba(15,23,42,0.04);
+        }}
+        div[data-testid="stMetric"] label {{
+            color: {C_MUTED} !important;
+            font-size: 0.8rem !important;
+            font-weight: 500 !important;
+        }}
+        div[data-testid="stMetric"] [data-testid="stMetricValue"] {{
+            color: {C_DEEP} !important;
+            font-weight: 700 !important;
+        }}
+        /* Dataframe */
+        [data-testid="stDataFrame"] {{
+            border: 1px solid {C_BORDER};
             border-radius: 10px;
-            padding: 0.75rem 1rem;
+            overflow: hidden;
+        }}
+        /* Body copy on light background — readable contrast */
+        .main [data-testid="stMarkdownContainer"] {{
+            color: {C_BODY} !important;
+        }}
+        .main [data-testid="stMarkdownContainer"] p,
+        .main [data-testid="stMarkdownContainer"] li,
+        .main [data-testid="stMarkdownContainer"] td {{
+            color: {C_BODY} !important;
+        }}
+        .main [data-testid="stMarkdownContainer"] strong {{
+            color: #0f172a !important;
+        }}
+        /* Captions */
+        .main .stCaption, [data-testid="stCaption"] {{
+            color: {C_MUTED} !important;
+            opacity: 1 !important;
+        }}
+        /* Inline alerts / notifications on main */
+        .main [data-baseweb="notification"] {{
+            color: {C_BODY} !important;
+        }}
+        .main [data-baseweb="notification"] p,
+        .main [data-baseweb="notification"] span,
+        .main div[data-testid="stAlert"] p,
+        .main div[data-testid="stAlert"] div[data-testid="stMarkdownContainer"] p {{
+            color: {C_BODY} !important;
+        }}
+        /* Plot containers */
+        [data-testid="stPlotlyChart"] {{
+            border: 1px solid {C_BORDER};
+            border-radius: 14px;
+            background: {C_SURFACE};
+            padding: 10px 8px 8px;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+        }}
+        /* Expander */
+        .streamlit-expanderHeader {{
+            font-weight: 600 !important;
+            color: {C_BODY} !important;
+            background: rgba(255,255,255,0.6);
+            border-radius: 10px;
+        }}
+        .streamlit-expanderContent {{
+            color: {C_BODY} !important;
         }}
         </style>
         """,
@@ -92,17 +282,33 @@ def inject_global_css() -> None:
 def style_plotly(fig, title: str | None = None) -> None:
     layout = dict(
         template="plotly_white",
-        font=dict(family="Inter, Segoe UI, system-ui, sans-serif", size=12, color="#334155"),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="#f8fafc",
-        margin=dict(l=48, r=24, t=56, b=48),
+        font=dict(family="'DM Sans', sans-serif", size=12, color=C_SLATE),
+        paper_bgcolor="rgba(255,255,255,0)",
+        plot_bgcolor="rgba(255,255,255,0.92)",
+        margin=dict(l=52, r=28, t=62, b=52),
         hovermode="closest",
+        hoverlabel=dict(bgcolor=C_DEEP, font_size=12, font_family="'DM Sans', sans-serif"),
     )
     if title:
-        layout["title"] = dict(text=title, font=dict(size=16, color=C_DEEP))
+        layout["title"] = dict(
+            text=title,
+            font=dict(size=17, color=C_DEEP, family="'DM Sans', sans-serif"),
+            x=0.02,
+            xanchor="left",
+        )
     fig.update_layout(**layout)
-    fig.update_xaxes(gridcolor="#e2e8f0", zeroline=False)
-    fig.update_yaxes(gridcolor="#e2e8f0", zeroline=False)
+    fig.update_xaxes(
+        gridcolor="rgba(148, 163, 184, 0.28)",
+        zeroline=False,
+        linecolor=C_BORDER,
+        tickfont=dict(color=C_MUTED, size=11),
+    )
+    fig.update_yaxes(
+        gridcolor="rgba(148, 163, 184, 0.28)",
+        zeroline=False,
+        linecolor=C_BORDER,
+        tickfont=dict(color=C_MUTED, size=11),
+    )
 
 
 # -----------------------------
@@ -219,7 +425,7 @@ def render_ml_dashboard():
             animation_frame="Date_str",
             title="Global evolution",
             projection="natural earth",
-            color_continuous_scale=SEQ,
+            color_continuous_scale=CSCALE,
         )
         style_plotly(fig_anim, str(fig_anim.layout.title.text or "Global evolution"))
         st.plotly_chart(fig_anim, use_container_width=True)
@@ -244,7 +450,7 @@ def render_ml_dashboard():
                 "Predicted": "Predicted new cases",
                 "Cases": "Reported cases",
             },
-            color_continuous_scale=SEQ,
+            color_continuous_scale=CSCALE,
         )
         style_plotly(fig_bubble, str(fig_bubble.layout.title.text or "Hotspots"))
         st.plotly_chart(fig_bubble, use_container_width=True)
@@ -276,7 +482,7 @@ def render_ml_dashboard():
             y=sort_col,
             title="Top 10",
             color=sort_col,
-            color_continuous_scale=SEQ,
+            color_continuous_scale=CSCALE,
         )
         style_plotly(fig_top10, str(fig_top10.layout.title.text or "Top 10"))
         fig_top10.update_layout(showlegend=False)
@@ -349,7 +555,7 @@ def render_ml_dashboard():
                     name="Forecast",
                     line=dict(color=C_ACCENT, width=3),
                     fill="tozeroy",
-                    fillcolor="rgba(249, 115, 22, 0.12)",
+                    fillcolor="rgba(234, 88, 12, 0.14)",
                 )
             )
             style_plotly(fig_ff, f"7-day outlook — {selected_country}")
@@ -516,9 +722,17 @@ def render_simple_timeseries_dashboard():
 
 def main():
     inject_global_css()
-    st.sidebar.markdown("### Epidemic IQ")
     st.sidebar.markdown(
-        "<span style='opacity:0.85;font-size:0.9rem;'>Geo risk · ML forecasts · scenario lab</span>",
+        """
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+            <span style="width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,#5eead4,#0d9488);box-shadow:0 0 12px rgba(45,212,191,0.5);"></span>
+            <span style="font-size:1.05rem;font-weight:700;color:#f8fafc;letter-spacing:-0.02em;">Epidemic IQ</span>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.sidebar.markdown(
+        "<span style='opacity:0.88;font-size:0.875rem;line-height:1.4;display:block;'>Geo risk · ML forecasts · scenario lab</span>",
         unsafe_allow_html=True,
     )
     st.sidebar.divider()
@@ -531,8 +745,10 @@ def main():
         ],
         label_visibility="collapsed",
     )
-    st.sidebar.divider()
-    st.sidebar.caption("Epidemic Intelligence prototype")
+    st.sidebar.markdown(
+        "<div style='margin-top:1.5rem;padding-top:1rem;border-top:1px solid rgba(255,255,255,0.12);font-size:0.75rem;opacity:0.65;color:#94a3b8;'>Epidemic Intelligence</div>",
+        unsafe_allow_html=True,
+    )
 
     if page == "Intelligence (ML)":
         render_ml_dashboard()
