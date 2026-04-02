@@ -602,28 +602,46 @@ def render_simple_timeseries_dashboard():
         fig_h.update_traces(line=dict(width=2.5))
         st.plotly_chart(fig_h, use_container_width=True)
 
-        future_days = 7
         last_value = float(data.values[-1])
-        predicted = [last_value + i * 1000 for i in range(1, future_days + 1)]
+        with st.expander("Scenario controls", expanded=False):
+            future_days = st.slider(
+                "Horizon (days)",
+                min_value=3,
+                max_value=30,
+                value=7,
+                step=1,
+                key="jhu_horizon",
+            )
+            daily_increment = st.number_input(
+                "Daily increment (baseline)",
+                min_value=0,
+                value=1000,
+                step=100,
+                key="jhu_daily_increment",
+            )
+
+        predicted = [
+            last_value + i * float(daily_increment) for i in range(1, future_days + 1)
+        ]
 
         c1, c2, c3 = st.columns(3)
         with c1:
             st.metric("Latest cumulative", f"{int(last_value):,}")
         with c2:
-            st.metric("7-day projection (baseline)", f"{int(predicted[-1]):,}")
+            st.metric(f"{future_days}-day projection (baseline)", f"{int(predicted[-1]):,}")
         with c3:
             delta_pct = ((predicted[-1] - last_value) / last_value * 100) if last_value else 0.0
             st.metric("Implied growth vs today", f"{delta_pct:.1f}%")
 
         st.subheader("Baseline projection")
         last_col = pd.to_datetime(data.index[-1])
-        future_dates = pd.date_range(start=last_col, periods=8)[1:]
+        future_dates = pd.date_range(start=last_col, periods=future_days + 1)[1:]
         pred_df = pd.DataFrame({"Date": future_dates, "Projected": predicted})
         fig_p = px.area(
             pred_df,
             x="Date",
             y="Projected",
-            title="Next 7 days (linear ramp)",
+            title=f"Next {future_days} days (linear ramp)",
             color_discrete_sequence=[C_ACCENT],
         )
         style_plotly(fig_p, str(fig_p.layout.title.text or "Projection"))
